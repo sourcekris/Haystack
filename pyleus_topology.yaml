@@ -1,0 +1,104 @@
+#    ____            _           _   
+#   |  _ \ _ __ ___ (_) ___  ___| |_ 
+#   | |_) | '__/ _ \| |/ _ \/ __| __|
+#   |  __/| | | (_) | |  __/ (__| |_ 
+#   |_|  _|_|  \___// |\___|\___|\__|
+#   | | | | __ _ _|__/ ___| |_ __ _  ___| | __
+#   | |_| |/ _` | | | / __| __/ _` |/ __| |/ /
+#   |  _  | (_| | |_| \__ \ || (_| | (__|   < 
+#   |_| |_|\__,_|\__, |___/\__\__,_|\___|_|\_\
+#                |___/                        
+#
+# This YAML file describes the Project: Haystack Storm topology
+#
+# Topology directory layout:
+#
+#   haystack_topology
+#   |-- haystack_topology
+#   |   |-- __init__.py
+#   |   |-- parse_event_bolt.py
+#   |   |-- query_length_bolt.py
+#   |   |-- query_shannon-entropy_bolt.py
+#   |   |-- query_language-analysis_bolt.py
+#   |   |-- query_rate_bolt.py
+#   |-- pyleus_topology.yaml
+#   |-- requirements.txt
+#
+
+# Metadata:
+# Author: Kris Hunt <kris_hunt@symantec.com>
+# Version: 1.0
+
+name: haystack_topology
+topology:
+
+    - spout:
+        name: raw_dns_spout
+        type: kafka
+        options:
+            topic: haystack
+            zk_hosts: storm.haystack.internal:2181
+            consumer_id: haystack-topology-consumer
+            from_start: false
+
+    # our first bolt is a message parser that parses the    
+    # raw kafka spout into out 8-gram tuple
+    - bolt:
+        name: parse_event_bolt
+        module: haystack_topology.parse_event_bolt
+        parallelism_hint: 3
+        groupings:
+            - shuffle_grouping: raw_dns_spout
+
+    - bolt: 
+        name: query_length_bolt
+        module: haystack_topology.query_length_bolt
+        parallelism_hint: 3
+        groupings:
+            - fields_grouping:
+                component: parse_event_bolt
+                fields:
+                    - query
+
+    # see publicsuffix.org for the list of public suffixes
+    - bolt: 
+        name: query_shannon-entropy_bolt
+        module: haystack_topology.query_shannon-entropy_bolt
+        options:
+            public_suffix_list: /usr/share/haystack/public_suffix_list.dat
+        parallelism_hint: 3
+        groupings:
+            - fields_grouping:
+                component: parse_event_bolt
+                fields:
+                    - query
+
+    # Supports the CMU phoneme dictionary
+    # http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b
+    #
+    # English corpus can be any raw wordlist
+    - bolt: 
+        name: query_language-analysis_bolt
+        module: haystack_topology.query_language-analysis_bolt
+        options:
+            phoneme_dictionary: /usr/share/haystack/cmudict-0.7b
+            english_corpus: /usr/share/haystack/big.txt
+            public_suffix_list: /usr/share/haystack/public_suffix_list.dat
+        parallelism_hint: 3
+        groupings:
+            - fields_grouping:
+                component: parse_event_bolt
+                fields:
+                    - query
+
+    - bolt: 
+        name: query_rate_bolt
+        module: haystack_topology.query_rate_bolt
+        parallelism_hint: 3
+        tick_freq_secs: 60
+        groupings:
+            - fields_grouping:
+                component: parse_event_bolt
+                fields:
+                    - srcip
+
