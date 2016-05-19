@@ -24,6 +24,11 @@ Initial implementation intended for academic use only
 - Python 2.7
 - JRE/JDK 1.7 or greater
 
+### Necessary 3rd Party Files
+- Download copy of CMU phoneme dictionary from here: http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b
+- Download a large English language corpus, I tested with this one: https://www.keithv.com/software/wlist/ (1.69 million words)
+- List of public domain suffixes from: https://publicsuffix.org/list/public_suffix_list.dat
+
 ### Installation
 Install Pyleus via Pip
 ```
