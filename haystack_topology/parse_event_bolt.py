@@ -36,10 +36,14 @@ class ParseEventBolt(SimpleBolt):
         eventid = ha.hexdigest()
 
         # ttl does not seem like its very reliable
-        ttl = eventdata[20]
-        
-        if ttl != '-' and not ttl.isdigit():
+        try:
+            ttl = eventdata[20]
+            
+            if ttl != '-' and not ttl.isdigit():
+                ttl = '-'
+        except IndexError:
             ttl = '-'
+            pass
     
         try: 
             record = Record(
