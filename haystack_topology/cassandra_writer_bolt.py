@@ -40,7 +40,7 @@ class CassandraWriter(SimpleBolt):
         prepared = self.session.prepare("""
          INSERT INTO haystack.events (eventid, timestamp, srcip, srcport, dstip, dstport, query, qtype, ttl)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""")
-        self.session.execute(prepared, (line.eventid, line.timestamp, line.srcip, int(line.srcport), line.dstip, int(line.dstport), line.query, line.qtype, line.ttl))
+        self.session.execute(prepared, (line.eventid, int(line.timestamp), line.srcip, int(line.srcport), line.dstip, int(line.dstport), line.query, line.qtype, line.ttl))
 
     def write_qlang(self, line):
         prepared = self.session.prepare("""
@@ -64,7 +64,7 @@ class CassandraWriter(SimpleBolt):
         prepared = self.session.prepare("""
          INSERT INTO haystack.qrate(timestamp, srcip, qrate)
          VALUES (?, ?, ?)""")
-        self.session.execute(prepared, (line.timestamp, line.srcip, float(line.qrate)))
+        self.session.execute(prepared, (int(line.timestamp), line.srcip, float(line.qrate)))
 
     def process_tuple(self, tup):
         if tup.comp == "parse_event_bolt":

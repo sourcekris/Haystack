@@ -113,7 +113,7 @@ topology:
         name: write_event_bolt
         module: haystack_topology.cassandra_writer_bolt
         options:
-            cassandra_ip: 192.168.1.207
+            cassandra_ip: 192.168.1.208
         parallelism_hint: 3
         groupings:
             - shuffle_grouping: parse_event_bolt
@@ -122,7 +122,7 @@ topology:
         name: write_qlang_bolt
         module: haystack_topology.cassandra_writer_bolt
         options:
-            cassandra_ip: 192.168.1.207
+            cassandra_ip: 192.168.1.208
         parallelism_hint: 3
         groupings:
             - shuffle_grouping: query_language_analysis_bolt
@@ -131,7 +131,7 @@ topology:
         name: write_qlength_bolt
         module: haystack_topology.cassandra_writer_bolt
         options:
-            cassandra_ip: 192.168.1.207
+            cassandra_ip: 192.168.1.208
         parallelism_hint: 3
         groupings:
             - shuffle_grouping: query_length_bolt
@@ -140,7 +140,7 @@ topology:
         name: write_qrate_bolt
         module: haystack_topology.cassandra_writer_bolt
         options:
-            cassandra_ip: 192.168.1.207
+            cassandra_ip: 192.168.1.208
         parallelism_hint: 3
         groupings:
             - shuffle_grouping: query_rate_bolt
@@ -149,7 +149,7 @@ topology:
         name: write_qentropy_bolt
         module: haystack_topology.cassandra_writer_bolt
         options:
-            cassandra_ip: 192.168.1.207
+            cassandra_ip: 192.168.1.208
         parallelism_hint: 3
         groupings:
             - shuffle_grouping: query_shannon_entropy_bolt

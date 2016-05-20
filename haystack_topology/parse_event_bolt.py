@@ -29,23 +29,23 @@ class ParseEventBolt(SimpleBolt):
     def process_tuple(self, tup):
         line, = tup.values
         eventdata = line.split('\t')
-        timestamp = eventdata[0].split()[1]
-        broid     = eventdata[1]
-        ha = hashlib.md5()
-        ha.update(timestamp+broid+str(tup.id))
-        eventid = ha.hexdigest()
 
-        # ttl does not seem like its very reliable
         try:
+            timestamp = eventdata[0].split()[1]
+            broid     = eventdata[1]
+            ha = hashlib.md5()
+            ha.update(timestamp+broid+str(tup.id))
+            eventid = ha.hexdigest()
+
+            ts = timestamp.split('.')
+            timestamp = int(ts[0] + ts[1].ljust(3,'0')[:3])
+
+            # ttl does not seem like its very reliable
             ttl = eventdata[20]
             
             if ttl != '-' and not ttl.isdigit():
                 ttl = '-'
-        except IndexError:
-            ttl = '-'
-            pass
-    
-        try: 
+
             record = Record(
                     eventid,        # eventid md5(timestamp+broid+tup.id)
                     timestamp,      # timestamp

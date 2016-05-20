@@ -31,7 +31,7 @@ class QueryRateBolt(SimpleBolt):
         self.sources = defaultdict(int)
 
     def process_tick(self):
-        timestamp = time.strftime("%s",time.gmtime())
+        timestamp = int(time.strftime("%s",time.gmtime())) * 1000
         for srcip,qnum in self.sources.iteritems():
             qrate = float(qnum) / float(self.conf.tick_tuple_freq)
             qr = QueryRate(timestamp, srcip, qrate)
