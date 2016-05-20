@@ -1,4 +1,5 @@
 # Project: Haystack
+```
     ____            _           _   
    |  _ \ _ __ ___ (_) ___  ___| |_ 
    | |_) | '__/ _ \| |/ _ \/ __| __|
@@ -10,6 +11,7 @@
    |_| |_|\__,_|\__, |___/\__\__,_|\___|_|\_\
                 |___/                        
 
+```
 ### Introduction
 A storm topology for detection of DNS tunnels. Written for ITC571 Emerging Technologies and Innovation, Charles Sturt University. 
 
