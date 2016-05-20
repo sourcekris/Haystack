@@ -16,7 +16,7 @@
 A storm topology for detection of DNS tunnels. Written for ITC571 Emerging Technologies and Innovation, Charles Sturt University. 
 
 ### Version
-0.8 beta build 20160520002
+0.99 beta build 20160520003
 
 ### Author
 Kris Hunt
