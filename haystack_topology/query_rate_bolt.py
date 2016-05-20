@@ -1,3 +1,15 @@
+#    ____            _           _   
+#   |  _ \ _ __ ___ (_) ___  ___| |_ 
+#   | |_) | '__/ _ \| |/ _ \/ __| __|
+#   |  __/| | | (_) | |  __/ (__| |_ 
+#   |_|  _|_|  \___// |\___|\___|\__|
+#   | | | | __ _ _|__/ ___| |_ __ _  ___| | __
+#   | |_| |/ _` | | | / __| __/ _` |/ __| |/ /
+#   |  _  | (_| | |_| \__ \ || (_| | (__|   < 
+#   |_| |_|\__,_|\__, |___/\__\__,_|\___|_|\_\
+#                |___/                        
+#
+
 from collections import defaultdict
 from collections import namedtuple
 import logging
@@ -20,8 +32,6 @@ class QueryRateBolt(SimpleBolt):
 
     def process_tick(self):
         timestamp = time.strftime("%s",time.gmtime())
-        log.debug('[*] QRTick -- {0} --------'.format(timestamp))
-        log.debug('[*] QRTick freq: {0} '.format(self.conf.tick_tuple_freq))
         for srcip,qnum in self.sources.iteritems():
             qrate = float(qnum) / float(self.conf.tick_tuple_freq)
             qr = QueryRate(timestamp, srcip, qrate)

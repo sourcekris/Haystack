@@ -1,25 +1,19 @@
+#    ____            _           _   
+#   |  _ \ _ __ ___ (_) ___  ___| |_ 
+#   | |_) | '__/ _ \| |/ _ \/ __| __|
+#   |  __/| | | (_) | |  __/ (__| |_ 
+#   |_|  _|_|  \___// |\___|\___|\__|
+#   | | | | __ _ _|__/ ___| |_ __ _  ___| | __
+#   | |_| |/ _` | | | / __| __/ _` |/ __| |/ /
+#   |  _  | (_| | |_| \__ \ || (_| | (__|   < 
+#   |_| |_|\__,_|\__, |___/\__\__,_|\___|_|\_\
+#                |___/                        
+#
 #
 # QueryLanguageAnalysisBolt -
 # 
 # Uses some insights on natural language to analyse queries
 # to detect possible machine generated 
-#
-# Features:
-#   Implemented - boolean_features: STARTS_WITH_NUMERIC
-#   Implemented - boolean_features: ENDS_WITH_NUMERIC
-#   Implemented - boolean_features: CONTAINS_00
-#   Implemented - boolean_features: CONTAINS_VV
-#   Implemented - boolean_features: CONTAINS_4
-#   Implemented - boolean_features: CONTAINS_1
-#   Implemented - boolean_features: CONTAINS_0
-#   scalar_features: DIGIT_RATIO
-#   scalar_features: HYPHEN_COUNT
-#   Implemented - scalar_features: LENGTH
-#   Implemented - scalar_features: WC
-#   Implemented - scalar_features: PHONEME_COUNT
-#   Implemented - scalar_features: PHONEME_LENGTH_RATIO
-#   Implemented - scalar_features: PHONEME_WC_RATIO
-#   Implemented - scalar_features: WC_LENGTH_RATIO
 
 from collections import namedtuple
 from itertools import groupby
@@ -33,7 +27,7 @@ from haystack_topology.parse_event_bolt import Record
 
 log = logging.getLogger('query_language-analysis_bolt')
 
-QLang = namedtuple("QLang", "query qlangscore plratio wlratio pwratio")
+QLang = namedtuple("QLang", "eventid query qlangscore plratio wlratio pwratio")
 
 class QueryLanguageAnalysisBolt(SimpleBolt):
 
@@ -122,7 +116,6 @@ class QueryLanguageAnalysisBolt(SimpleBolt):
                         else:
                             phonemecount += len(v)
 
-        log.debug('[*] Query: {0} WC {1} PC {2}'.format(query, wordcount, phonemecount))
         return wordcount, phonemecount
 
     def process_tuple(self, tup):
@@ -169,9 +162,8 @@ class QueryLanguageAnalysisBolt(SimpleBolt):
             if hyphenratio > 0.2:
                 qlangscore += 5
 
-            log.debug(repr([q,nums,ltrs,dash,digitratio, hyphenratio]))
-
         ql = QLang(
+            qdata.eventid,
             qdata.query, 
             wc+pc,
             plratio,

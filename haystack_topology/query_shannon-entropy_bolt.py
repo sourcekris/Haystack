@@ -1,3 +1,13 @@
+#    ____            _           _   
+#   |  _ \ _ __ ___ (_) ___  ___| |_ 
+#   | |_) | '__/ _ \| |/ _ \/ __| __|
+#   |  __/| | | (_) | |  __/ (__| |_ 
+#   |_|  _|_|  \___// |\___|\___|\__|
+#   | | | | __ _ _|__/ ___| |_ __ _  ___| | __
+#   | |_| |/ _` | | | / __| __/ _` |/ __| |/ /
+#   |  _  | (_| | |_| \__ \ || (_| | (__|   < 
+#   |_| |_|\__,_|\__, |___/\__\__,_|\___|_|\_\
+#                |___/                        
 #
 # QueryShannonEntropyBolt -
 # 
@@ -17,7 +27,7 @@ from haystack_topology.parse_event_bolt import Record
 
 log = logging.getLogger('query_shannon-entropy_bolt')
 
-QEntropy = namedtuple("QEntropy", "query qentropy")
+QEntropy = namedtuple("QEntropy", "eventid query qentropy")
 
 class QueryShannonEntropyBolt(SimpleBolt):
 
@@ -55,7 +65,7 @@ class QueryShannonEntropyBolt(SimpleBolt):
     def process_tuple(self, tup):
         qdata = Record(*tup.values)
         qse = self.shannon(self.remove_suffix(qdata.query))
-        qe = QEntropy(qdata.query, qse)
+        qe = QEntropy(qdata.eventid, qdata.query, qse)
         log.debug(repr(qe))
         self.emit(qe, anchors=[tup])
 

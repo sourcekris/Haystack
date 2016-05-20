@@ -27,7 +27,7 @@
 
 # Metadata:
 # Author: Kris Hunt <kris_hunt@symantec.com>
-# Version: 1.0
+# Version: 0.7 build 20160520001
 
 name: haystack_topology
 topology:
