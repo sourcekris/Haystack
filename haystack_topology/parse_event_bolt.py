@@ -34,6 +34,13 @@ class ParseEventBolt(SimpleBolt):
         ha = hashlib.md5()
         ha.update(timestamp+broid+str(tup.id))
         eventid = ha.hexdigest()
+
+        # ttl does not seem like its very reliable
+        ttl = eventdata[20]
+        
+        if ttl != '-' and not ttl.isdigit():
+            ttl = '-'
+    
         try: 
             record = Record(
                     eventid,        # eventid md5(timestamp+broid+tup.id)
@@ -44,7 +51,7 @@ class ParseEventBolt(SimpleBolt):
                     eventdata[5],   # dstport
                     eventdata[8],   # query
                     eventdata[12],  # qtype
-                    eventdata[20])  # ttl
+                    ttl)  # ttl
 
             log.debug(repr(record))
             self.emit(record, anchors=[tup])

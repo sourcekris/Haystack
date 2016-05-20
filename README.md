@@ -16,7 +16,7 @@
 A storm topology for detection of DNS tunnels. Written for ITC571 Emerging Technologies and Innovation, Charles Sturt University. 
 
 ### Version
-0.7 beta build 20160520001
+0.8 beta build 20160520002
 
 ### Author
 Kris Hunt
@@ -35,6 +35,7 @@ Initial implementation intended for academic use only
 - Pyleus
 - Python 2.7
 - JRE/JDK 1.7 or greater
+- Cassandra driver for Python
 
 ### Necessary 3rd Party Files
 - Download copy of CMU phoneme dictionary from here: http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b
@@ -42,10 +43,11 @@ Initial implementation intended for academic use only
 - List of public domain suffixes from: https://publicsuffix.org/list/public_suffix_list.dat
 
 ### Installation
-Install Pyleus via Pip
+Install Pyleus and Cassandra driver via Pip
 ```
 apt-get install pip git
 pip install pyleus
+pip install cassandra-driver
 ```
 Download and unpack Apache Storm, I used 0.9.4 in the development of the topology:
 ```

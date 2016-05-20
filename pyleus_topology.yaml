@@ -18,13 +18,13 @@
 #   |   |-- __init__.py
 #   |   |-- parse_event_bolt.py
 #   |   |-- query_length_bolt.py
-#   |   |-- query_shannon-entropy_bolt.py
-#   |   |-- query_language-analysis_bolt.py
+#   |   |-- query_shannon_entropy_bolt.py
+#   |   |-- query_language_analysis_bolt.py
 #   |   |-- query_rate_bolt.py
+#   |   |-- cassandra_writer_bolt.py
 #   |-- pyleus_topology.yaml
 #   |-- requirements.txt
 #
-
 # Metadata:
 # Author: Kris Hunt <kris_hunt@symantec.com>
 # Version: 0.7 build 20160520001
@@ -42,7 +42,7 @@ topology:
             from_start: false
 
     # our first bolt is a message parser that parses the    
-    # raw kafka spout into out 8-gram tuple
+    # raw kafka spout into our 8+1-gram tuple
     - bolt:
         name: parse_event_bolt
         module: haystack_topology.parse_event_bolt
@@ -50,6 +50,7 @@ topology:
         groupings:
             - shuffle_grouping: raw_dns_spout
 
+    # This bolt simply measures the query length
     - bolt: 
         name: query_length_bolt
         module: haystack_topology.query_length_bolt
@@ -60,10 +61,12 @@ topology:
                 fields:
                     - query
 
-    # see publicsuffix.org for the list of public suffixes
+    # This bolt calculates the query's shannon entropy after removing
+    # the domain suffix.
+    # See publicsuffix.org for the list of public suffixes
     - bolt: 
-        name: query_shannon-entropy_bolt
-        module: haystack_topology.query_shannon-entropy_bolt
+        name: query_shannon_entropy_bolt
+        module: haystack_topology.query_shannon_entropy_bolt
         options:
             public_suffix_list: /usr/share/haystack/public_suffix_list.dat
         parallelism_hint: 3
@@ -75,11 +78,11 @@ topology:
 
     # Supports the CMU phoneme dictionary
     # http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b
-    #
-    # English corpus can be any raw wordlist
+    # English corpus can be any raw wordlist. See the README for 
+    # suggestions.
     - bolt: 
-        name: query_language-analysis_bolt
-        module: haystack_topology.query_language-analysis_bolt
+        name: query_language_analysis_bolt
+        module: haystack_topology.query_language_analysis_bolt
         options:
             phoneme_dictionary: /usr/share/haystack/cmudict-0.7b
             english_corpus: /usr/share/haystack/big.txt
@@ -91,6 +94,8 @@ topology:
                 fields:
                     - query
 
+    # This bolt measures the rate at which each source IP makes DNS
+    # queries. It reports every N seconds defined by the tick freq.
     - bolt: 
         name: query_rate_bolt
         module: haystack_topology.query_rate_bolt
@@ -102,3 +107,49 @@ topology:
                 fields:
                     - srcip
 
+    # The following 5 bolts take care of the Cassandra database
+    # writes. All of these bolts are run by the same module.
+    - bolt:
+        name: write_event_bolt
+        module: haystack_topology.cassandra_writer_bolt
+        options:
+            cassandra_ip: 192.168.1.207
+        parallelism_hint: 3
+        groupings:
+            - shuffle_grouping: parse_event_bolt
+
+    - bolt:
+        name: write_qlang_bolt
+        module: haystack_topology.cassandra_writer_bolt
+        options:
+            cassandra_ip: 192.168.1.207
+        parallelism_hint: 3
+        groupings:
+            - shuffle_grouping: query_language_analysis_bolt
+
+    - bolt:
+        name: write_qlength_bolt
+        module: haystack_topology.cassandra_writer_bolt
+        options:
+            cassandra_ip: 192.168.1.207
+        parallelism_hint: 3
+        groupings:
+            - shuffle_grouping: query_length_bolt
+
+    - bolt:
+        name: write_qrate_bolt
+        module: haystack_topology.cassandra_writer_bolt
+        options:
+            cassandra_ip: 192.168.1.207
+        parallelism_hint: 3
+        groupings:
+            - shuffle_grouping: query_rate_bolt
+
+    - bolt:
+        name: write_qentropy_bolt
+        module: haystack_topology.cassandra_writer_bolt
+        options:
+            cassandra_ip: 192.168.1.207
+        parallelism_hint: 3
+        groupings:
+            - shuffle_grouping: query_shannon_entropy_bolt
